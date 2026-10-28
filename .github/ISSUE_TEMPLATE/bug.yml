@@ -1,0 +1,32 @@
+name: Bug report / Bug
+description: Report something that does not work / Signaler un problème
+labels: bug
+body:
+  - type: markdown
+    attributes:
+      value: Do not include tokens, private server IDs, messages, or other sensitive information. / Ne partage pas de token ou de données privées.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened? / Que s'est-il passé ?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Étapes pour reproduire
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result / Résultat attendu
+  - type: input
+    id: versions
+    attributes:
+      label: Windows, Python and MCP client versions / Versions utilisées
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs without secrets / Logs sans données sensibles
+      render: text

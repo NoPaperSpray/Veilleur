@@ -1,5 +1,7 @@
 # Veilleur — Discord MCP server
 
+[![Tests](https://github.com/NoPaperSpray/Veilleur/actions/workflows/tests.yml/badge.svg)](https://github.com/NoPaperSpray/Veilleur/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 [Lire en français](README.md)
 
 Veilleur is a local Model Context Protocol (MCP) server that lets an AI client manage a Discord server through a Discord bot. It can plan channel and role changes, adjust permissions, and prepare messages or embeds. Before any change, you review the plan and approve it in a window on your computer.
@@ -104,3 +106,7 @@ The offline tests do not use your token:
 ```
 
 The [detailed manual](LISEZ-MOI.md) and [AI tool guide](GUIDE-IA.md) are currently in French. Restart MCP clients after updating the program so they load the new version.
+
+## Contributing
+
+Found a bug or have an idea? Open an issue. See [CONTRIBUTING.md](CONTRIBUTING.md) for pull requests. Veilleur is released under the [MIT license](LICENSE).

@@ -1,5 +1,7 @@
 # Veilleur — serveur MCP pour Discord
 
+[![Tests](https://github.com/NoPaperSpray/Veilleur/actions/workflows/tests.yml/badge.svg)](https://github.com/NoPaperSpray/Veilleur/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 [English version](README.en.md)
 
 Veilleur est un serveur MCP (Model Context Protocol) pour gérer un serveur Discord avec une IA. Il tourne en local et passe par un bot Discord pour créer des salons, modifier des rôles, envoyer des embeds, etc.
@@ -120,3 +122,7 @@ Les tests tournent hors ligne et n'utilisent pas ton token :
 ```
 
 Après une mise à jour du programme, redémarre tes clients MCP pour qu'ils chargent la nouvelle version.
+
+## Contribuer
+
+Un bug ou une idée ? Ouvre une issue. Pour proposer du code, regarde [CONTRIBUTING.md](CONTRIBUTING.md). Le projet est sous [licence MIT](LICENSE).
