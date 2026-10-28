@@ -79,6 +79,17 @@ codex mcp add discord-local -- $pythonDiscord $serveurDiscord
 
 Restart Codex to load the tools. If `discord-local` is already configured with these paths, you do not need to add it again.
 
+For **OpenCode v2**, after installing the project and configuring `.env` and `config.json`, run these commands in the repository folder:
+
+```powershell
+$pythonDiscord = (Resolve-Path .\.venv\Scripts\python.exe).Path
+$serveurDiscord = (Resolve-Path .\server.py).Path
+opencode mcp add veilleur --global -- $pythonDiscord $serveurDiscord
+opencode mcp list
+```
+
+This adds Veilleur to your global OpenCode configuration. Restart OpenCode if necessary. The connection was checked with OpenCode v2.1.4 and a test configuration. For other versions, see the [OpenCode documentation](https://dev.opencode.ai/v2/docs/mcp-servers/).
+
 For another stdio MCP client, set the command to the absolute path of `.venv\Scripts\python.exe` and the argument to the absolute path of `server.py`. Configuration differs between clients. The approval window must be able to open in your Windows session.
 
 

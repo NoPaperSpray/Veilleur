@@ -85,6 +85,17 @@ codex mcp add discord-local -- $pythonDiscord $serveurDiscord
 
 Redémarre Codex, puis essaie : « Lis mon serveur Discord et propose une organisation. » Si `discord-local` est déjà configuré avec ces chemins, pas besoin de l'ajouter à nouveau.
 
+Pour **OpenCode v2**, après avoir installé le projet et renseigné `.env` et `config.json`, lance ces commandes dans le dossier du dépôt :
+
+```powershell
+$pythonDiscord = (Resolve-Path .\.venv\Scripts\python.exe).Path
+$serveurDiscord = (Resolve-Path .\server.py).Path
+opencode mcp add veilleur --global -- $pythonDiscord $serveurDiscord
+opencode mcp list
+```
+
+La configuration est globale : Veilleur sera disponible depuis tes projets OpenCode. Redémarre OpenCode si nécessaire. La connexion a été vérifiée avec OpenCode v2.1.4 et une configuration de test. Pour les autres versions, consulte la [documentation OpenCode](https://dev.opencode.ai/v2/docs/mcp-servers/).
+
 Pour un autre client MCP compatible stdio, utilise le chemin absolu de `.venv\Scripts\python.exe` comme commande et celui de `server.py` comme argument. La config dépend du client. La fenêtre de validation doit pouvoir s'ouvrir dans ta session Windows.
 
 
