@@ -82,7 +82,7 @@ Ces dossiers peuvent contenir des informations privées du serveur et ne doivent
 Tests hors ligne, sans Discord et sans token :
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest -v test_core
+.\.venv\Scripts\python.exe -m unittest discover -v
 ```
 
 ## Exemple de plan groupé pour l'IA

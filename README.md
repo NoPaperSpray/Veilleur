@@ -87,6 +87,13 @@ Redémarre Codex, puis essaie : « Lis mon serveur Discord et propose une organi
 
 Pour un autre client MCP compatible stdio, utilise le chemin absolu de `.venv\Scripts\python.exe` comme commande et celui de `server.py` comme argument. La config dépend du client. La fenêtre de validation doit pouvoir s'ouvrir dans ta session Windows.
 
+
+### Installation depuis les sources Python
+
+Dans une copie du dépôt, `python -m pip install .` installe aussi la commande `veilleur-discord-mcp`. Le paquet utilise les variables `DISCORD_BOT_TOKEN` et `DISCORD_GUILD_ID` ; les plans et sauvegardes sont dans `%LOCALAPPDATA%\Veilleur` par défaut. `VEILLEUR_HOME` permet de choisir un autre dossier. Garde ces valeurs privées dans la configuration locale de ton client MCP.
+
+La commande historique `python server.py` continue d'utiliser `.env`, `config.json` et `data/` dans le dossier du dépôt. Ces emplacements sont séparés de ceux du paquet installé.
+
 ## Validation et sauvegardes
 
 Un plan doit être approuvé dans la fenêtre locale avant de pouvoir être exécuté. L'accord vaut pour ce plan précis, pendant 10 minutes et pour une seule exécution. Si le serveur ou une cible change entre-temps, il faut préparer un nouveau plan.
@@ -118,7 +125,7 @@ Pour plus de détails : [manuel complet](LISEZ-MOI.md) et [guide des outils pour
 Les tests tournent hors ligne et n'utilisent pas ton token :
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest -v test_core
+.\.venv\Scripts\python.exe -m unittest discover -v
 ```
 
 Après une mise à jour du programme, redémarre tes clients MCP pour qu'ils chargent la nouvelle version.

@@ -1,0 +1,1 @@
+"""Veilleur Discord MCP server."""

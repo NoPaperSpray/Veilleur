@@ -1,3 +1,5 @@
+<!-- mcp-name: io.github.NoPaperSpray/veilleur -->
+
 # Veilleur — Discord MCP server
 
 [![Tests](https://github.com/NoPaperSpray/Veilleur/actions/workflows/tests.yml/badge.svg)](https://github.com/NoPaperSpray/Veilleur/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -79,6 +81,13 @@ Restart Codex to load the tools. If `discord-local` is already configured with t
 
 For another stdio MCP client, set the command to the absolute path of `.venv\Scripts\python.exe` and the argument to the absolute path of `server.py`. Configuration differs between clients. The approval window must be able to open in your Windows session.
 
+
+### Install from Python source
+
+Run `python -m pip install .` from a checkout to install the `veilleur-discord-mcp` command. The package accepts `DISCORD_BOT_TOKEN` and `DISCORD_GUILD_ID` environment variables. Plans and backups default to `%LOCALAPPDATA%\Veilleur` on Windows; set `VEILLEUR_HOME` to choose another directory. Keep credentials private in your MCP client's local configuration.
+
+The existing `python server.py` entry point still uses `.env`, `config.json`, and `data/` in the checkout. Its data is separate from the installed package's default directory.
+
 ## Approval and backup limits
 
 An approval applies to one exact plan, for ten minutes, and can be used once. If the server or a target changes before execution, you need a new preview. Veilleur warns before channel deletion and checks whether its last message changed between preview and execution; this does not detect every possible change to the channel.
@@ -102,7 +111,7 @@ You can ask the AI to run `diagnostic` for server-level bot permissions. It does
 The offline tests do not use your token:
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest -v test_core
+.\.venv\Scripts\python.exe -m unittest discover -v
 ```
 
 The [detailed manual](LISEZ-MOI.md) and [AI tool guide](GUIDE-IA.md) are currently in French. Restart MCP clients after updating the program so they load the new version.
