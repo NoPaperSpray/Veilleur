@@ -44,6 +44,7 @@ LIMITS = [
     "Une suppression Discord est irréversible : les éléments recréés ont de nouveaux IDs.",
     "Les messages supprimés ne retrouvent pas leur auteur, leur date, leurs réactions ou leurs pièces jointes.",
     "Les sauvegardes couvrent la structure et les membres/messages ciblés, pas tout l'historique du serveur.",
+    "Les salons que le bot ne voit pas peuvent manquer de la sauvegarde.",
     "Supprimer un rôle ne sauvegarde pas toutes ses affectations. Les fils, invitations et intégrations ne sont pas restaurés.",
     "La restauration est un nouveau plan à approuver ; elle ne s'exécute jamais automatiquement.",
 ]
@@ -65,6 +66,29 @@ def snowflake(value):
 
 def select(data, fields):
     return {key: copy.deepcopy(data[key]) for key in fields if key in data}
+
+
+def permission_report(state, member):
+    """Report guild-level role permissions; channel overrides are separate."""
+    roles = state["roles"]
+    guild_id = state["serveur"]["id"]
+    member_roles = set(member.get("roles", []))
+    selected = [role for role in roles if role["id"] == guild_id or role["id"] in member_roles]
+    mask = 0
+    for role in selected:
+        mask |= int(role.get("permissions", "0"))
+    admin = bool(mask & (1 << 3))
+    bits = {"voir_salons": 10, "gerer_salons": 4, "gerer_roles": 28, "gerer_serveur": 5,
+            "envoyer_messages": 11, "integrer_liens": 14, "lire_historique": 16, "moderation": 40}
+    return {"administrateur": admin,
+            "permissions_serveur": {name: admin or bool(mask & (1 << bit)) for name, bit in bits.items()},
+            "role_le_plus_haut": max((r for r in selected if r["id"] != guild_id),
+                                     key=lambda r: r.get("position", 0), default=None),
+            "salons_visibles": len(state["salons"]),
+            "limites": ["Les permissions propres aux salons ne sont pas calculées ici.",
+                        "Le bot ne peut gérer que les rôles situés sous son rôle le plus haut.",
+                        "Les salons non visibles par le bot peuvent manquer de la liste et des sauvegardes.",
+                        "Les permissions des membres et les fonctionnalités du serveur peuvent limiter certaines actions."]}
 
 
 class DiscordAPI:
@@ -256,14 +280,17 @@ class Service:
                 refs.add(op["ref"])
 
     def context(self, operations, state):
-        context = {"membres": {}, "messages": {}}
+        context = {"membres": {}, "messages": {}, "salons_supprimes": {}}
         roles = {r["id"]: r for r in state["roles"]}
         for op in operations:
             p, action = op["params"], op["action"]
             # Check the guild again: an ID alone isn't an invitation.
             for key in ("salon_id", "parent_id"):
                 if p.get(key) and not p[key].startswith("@"):
-                    self.channel(p[key])
+                    channel = self.channel(p[key])
+                    if key == "salon_id" and action == "supprimer_salon":
+                        # A new message after approval changes what the deletion would destroy.
+                        context["salons_supprimes"][p[key]] = select(channel, {"name", "type", "last_message_id"})
             if p.get("role_id") and not p["role_id"].startswith("@"):
                 role = roles.get(p["role_id"])
                 if role is None:
@@ -278,7 +305,8 @@ class Service:
 
     def context_fingerprint(self, ctx):
         return digest({"membres": {k: select(v, {"roles", "nick", "communication_disabled_until"}) for k, v in ctx["membres"].items()},
-                       "messages": {k: select(v, {"content", "embeds", "attachments", "pinned"}) for k, v in ctx["messages"].items()}})
+                       "messages": {k: select(v, {"content", "embeds", "attachments", "pinned"}) for k, v in ctx["messages"].items()},
+                       "salons_supprimes": ctx.get("salons_supprimes", {})})
 
     def preview(self, title, operations):
         operations = copy.deepcopy(operations)
@@ -293,6 +321,7 @@ class Service:
                    "avant": {"serveur": select(state["serveur"], GUILD_FIELDS),
                              "salons": [dict(id=c["id"], **select(c, CHANNEL_FIELDS)) for c in state["salons"]],
                              "roles": [dict(id=r["id"], **select(r, ROLE_FIELDS)) for r in state["roles"]],
+                             "salons_supprimes": ctx["salons_supprimes"],
                              "membres_cibles": {k: select(v, {"roles", "nick", "communication_disabled_until"}) for k, v in ctx["membres"].items()},
                              "messages_cibles": {k: select(v, {"content", "embeds"}) for k, v in ctx["messages"].items()}}}
         plan = {"payload": payload, "sha256": digest(payload), "status": "pending"}

@@ -17,6 +17,7 @@ Ne jamais contourner ce parcours par le shell, l'API Discord, un ancien programm
 ## Outils de lecture et de préparation
 
 - `etat_serveur()` : informations du serveur, salons, rôles et permissions.
+- `diagnostic()` : connexion, rôle le plus haut et permissions de base du bot. Les dérogations par salon ne sont pas calculées et les salons invisibles peuvent manquer.
 - `membre(membre_id)` : consulter un membre ; `rechercher_membres(recherche, limite)` : recherche par préfixe ; `lire_messages(salon_id, limite)` : lire des messages. Les intents et les permissions Discord peuvent limiter les résultats.
 - `catalogue_actions()` : liste à jour des actions groupées, champs requis et autorisés et types de salons. La consulter si un détail diffère de ce guide.
 - `calculer_permissions(noms)` : calculer les masques de permissions usuelles à partir de leurs noms Discord. Les masques sont des chaînes décimales.

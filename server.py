@@ -8,7 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-from core import CATALOG, LIMITS, DiscordAPI, Service
+from core import CATALOG, LIMITS, DiscordAPI, Service, permission_report
 
 ROOT = Path(__file__).resolve().parent
 load_dotenv(ROOT / ".env", override=True)
@@ -33,6 +33,16 @@ def single(action, params):
 def etat_serveur():
     """Lire le serveur, ses salons, rôles et permissions sans le modifier."""
     return service.state()
+
+
+@mcp.tool()
+def diagnostic():
+    """Vérifier la connexion et les permissions du bot au niveau du serveur. Les dérogations propres aux salons et les salons invisibles ne sont pas vérifiés."""
+    state = service.state()
+    bot = service.api.request("GET", "/users/@me")
+    member = service.member(bot["id"])
+    return {"serveur": state["serveur"]["name"], "bot": bot["username"],
+            "diagnostic": permission_report(state, member)}
 
 
 @mcp.tool()

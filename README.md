@@ -89,6 +89,8 @@ Un plan doit être approuvé dans la fenêtre locale avant de pouvoir être exé
 
 Avant l'exécution, Veilleur sauvegarde la structure, les rôles, certains paramètres et les membres ou messages directement concernés. Les fichiers sont stockés dans `data/` et peuvent contenir des infos privées.
 
+La sauvegarde dépend de ce que le bot peut voir : un salon inaccessible peut manquer. Vérifie ses permissions avant de compter dessus pour une restauration.
+
 La restauration a des limites : les éléments recréés ont de nouveaux IDs ; les messages supprimés, pièces jointes et réactions ne reviennent pas. Les liens externes, fils, invitations et intégrations ne sont pas réparés automatiquement. Les affectations d'un rôle supprimé ne sont pas non plus sauvegardées pour tous les membres.
 
 Un retour arrière passe lui aussi par un aperçu et peut écraser des modifications faites depuis la sauvegarde. En cas d'erreur ou de réponse réseau perdue, consulte le journal avant de relancer quoi que ce soit.
@@ -102,6 +104,8 @@ La validation s'applique aux outils MCP de Veilleur. Elle ne protège pas ton to
 - **Erreur 401** : vérifie le token dans `.env`.
 - **Erreur 403** : vérifie les permissions et la position du rôle du bot. Certaines recherches de membres et lectures de messages peuvent aussi demander des intents sur le portail Discord.
 - **Le bot est hors ligne** : c'est normal. Veilleur utilise l'API HTTP sans connexion Gateway.
+
+Demande aussi à l'IA de lancer `diagnostic` : il vérifie la connexion et les permissions du bot au niveau du serveur. Il ne calcule pas les exceptions propres à chaque salon.
 
 Pour plus de détails : [manuel complet](LISEZ-MOI.md) et [guide des outils pour l'IA](GUIDE-IA.md).
 

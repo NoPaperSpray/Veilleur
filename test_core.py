@@ -5,7 +5,8 @@ import time
 import unittest
 from pathlib import Path
 
-from core import Service
+from core import Service, permission_report
+from approve import format_plan
 
 
 class FakeAPI:
@@ -141,6 +142,47 @@ class SafetyTests(unittest.TestCase):
         self.api.messages["40"]["content"] = "Externe"
         with self.assertRaisesRegex(ValueError, "changé"):
             self.s.execute(plan_id)
+
+    def test_new_message_blocks_approved_channel_deletion(self):
+        self.api.channels[0]["last_message_id"] = "40"
+        plan_id = self.plan([{"action": "supprimer_salon", "params": {"salon_id": "20"}}])
+        self.approve_fake(plan_id)
+        self.api.channels[0]["last_message_id"] = "41"
+        with self.assertRaisesRegex(ValueError, "changé"):
+            self.s.execute(plan_id)
+        self.assertEqual(self.api.writes, [])
+
+    def test_channel_deletion_preview_warns_even_without_last_message(self):
+        plan_id = self.plan([{"action": "supprimer_salon", "params": {"salon_id": "20"}}])
+        summary = format_plan(self.s.plan(plan_id)["payload"])
+        self.assertIn("général (20)", summary)
+        self.assertIn("messages de ce salon seront supprimés", summary)
+        self.assertIn("même si le dernier ID", summary)
+
+    def test_approval_summary_shows_before_after_and_refs(self):
+        plan_id = self.plan([
+            {"action": "modifier_salon", "params": {"salon_id": "20", "data": {"name": "nouveau"}}},
+            {"action": "creer_salon", "params": {"name": "accueil", "type": 4}, "ref": "accueil"},
+            {"action": "creer_salon", "params": {"name": "règles", "type": 0, "parent_id": "@accueil"}},
+        ])
+        summary = format_plan(self.s.plan(plan_id)["payload"])
+        self.assertIn('"général" → "nouveau"', summary)
+        self.assertIn("accueil (à créer)", summary)
+
+    def test_permission_report_includes_everyone_and_bot_roles(self):
+        self.api.roles[0]["permissions"] = str(1 << 10)
+        self.api.roles.append({"id": "12", "name": "Bot", "permissions": str(1 << 28), "position": 2})
+        report = permission_report(self.s.state(), {"roles": ["12"]})
+        self.assertTrue(report["permissions_serveur"]["voir_salons"])
+        self.assertTrue(report["permissions_serveur"]["gerer_roles"])
+        self.assertFalse(report["permissions_serveur"]["gerer_salons"])
+        self.assertEqual(report["role_le_plus_haut"]["id"], "12")
+
+    def test_permission_report_administrator(self):
+        self.api.roles[0]["permissions"] = "8"
+        report = permission_report(self.s.state(), {"roles": []})
+        self.assertTrue(report["administrateur"])
+        self.assertTrue(all(report["permissions_serveur"].values()))
 
     def test_approved_execution_backs_up_and_is_single_use(self):
         plan_id = self.plan()

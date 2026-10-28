@@ -36,6 +36,8 @@ Ces protections concernent l'utilisation des outils MCP. Un programme ou une IA 
 
 Les sauvegardes contiennent la structure des salons/catégories, les rôles et leurs permissions, les paramètres pris en charge et les états des membres/messages directement ciblés par un plan. Elles ne sauvegardent pas tous les membres ni l'historique complet des conversations.
 
+Les salons que le bot ne peut pas voir peuvent manquer de la sauvegarde. Le diagnostic indique les permissions de base du bot ; il ne calcule pas les dérogations propres aux salons.
+
 `preparer_restauration` compare une sauvegarde à l'état courant et prépare la réparation/recréation des éléments sauvegardés. Il préserve les ajouts postérieurs. `preparer_retour_arriere` utilise le journal d'une exécution entièrement terminée pour préparer en plus la suppression de ses créations connues et la restauration des messages qu'elle a modifiés. Relis les suppressions : un salon créé par une ancienne opération peut avoir reçu des messages depuis.
 
 **Un retour arrière n'est jamais automatique ni total.** Les salons et rôles supprimés sont recréés avec de nouveaux identifiants. Les permissions, parents et références internes prises en charge sont remappés. Les liens externes, invitations, intégrations, fils et références d'autres bots ne sont pas réparés. Les messages supprimés et leurs pièces jointes, auteurs, dates ou réactions ne sont pas rétablis. Les affectations d'un rôle supprimé à tous les membres ne sont pas enregistrées ; seules celles des membres directement ciblés par le plan le sont. Les images/icônes, emojis et paramètres non exposés ne font pas partie de la restauration.
