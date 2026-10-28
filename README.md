@@ -1,6 +1,8 @@
-# Veilleur
+# Veilleur — serveur MCP pour Discord
 
-Veilleur est un serveur MCP pour gérer un serveur Discord avec une IA. Il tourne en local et passe par un bot Discord pour créer des salons, modifier des rôles, envoyer des embeds, etc.
+[English version](README.en.md)
+
+Veilleur est un serveur MCP (Model Context Protocol) pour gérer un serveur Discord avec une IA. Il tourne en local et passe par un bot Discord pour créer des salons, modifier des rôles, envoyer des embeds, etc.
 
 L'idée : tu dis à l'IA ce que tu veux, elle prépare les changements, et tu valides avant qu'ils soient appliqués. Ça évite de lui laisser les clés du serveur sans savoir ce qu'elle va en faire.
 
