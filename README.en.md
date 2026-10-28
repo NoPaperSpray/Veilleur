@@ -82,11 +82,20 @@ Restart Codex to load the tools. If `discord-local` is already configured with t
 For another stdio MCP client, set the command to the absolute path of `.venv\Scripts\python.exe` and the argument to the absolute path of `server.py`. Configuration differs between clients. The approval window must be able to open in your Windows session.
 
 
-### Install from Python source
+### Install with pip
 
-Run `python -m pip install .` from a checkout to install the `veilleur-discord-mcp` command. The package accepts `DISCORD_BOT_TOKEN` and `DISCORD_GUILD_ID` environment variables. Plans and backups default to `%LOCALAPPDATA%\Veilleur` on Windows; set `VEILLEUR_HOME` to choose another directory. Keep credentials private in your MCP client's local configuration.
+Veilleur is available on [PyPI](https://pypi.org/project/veilleur-discord-mcp/) and in the [official MCP Registry](https://registry.modelcontextprotocol.io/). Search for `io.github.NoPaperSpray/veilleur` in the registry.
 
-The existing `python server.py` entry point still uses `.env`, `config.json`, and `data/` in the checkout. Its data is separate from the installed package's default directory.
+On Windows, you can install the package in a dedicated environment:
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install veilleur-discord-mcp
+```
+
+In your MCP client, use the absolute path to `.venv\Scripts\veilleur-discord-mcp.exe` as the command and set the `DISCORD_BOT_TOKEN` and `DISCORD_GUILD_ID` environment variables in its local configuration. Keep the token private: some clients store this configuration in plaintext.
+
+The installed package stores plans and backups in `%LOCALAPPDATA%\Veilleur` by default; set `VEILLEUR_HOME` to choose another directory. You can also install from a checkout with `python -m pip install .`. The existing `python server.py` entry point still uses `.env`, `config.json`, and `data/` in the checkout. Its backups are separate from the installed package's default directory.
 
 ## Approval and backup limits
 

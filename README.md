@@ -88,11 +88,20 @@ Redémarre Codex, puis essaie : « Lis mon serveur Discord et propose une organi
 Pour un autre client MCP compatible stdio, utilise le chemin absolu de `.venv\Scripts\python.exe` comme commande et celui de `server.py` comme argument. La config dépend du client. La fenêtre de validation doit pouvoir s'ouvrir dans ta session Windows.
 
 
-### Installation depuis les sources Python
+### Installation avec pip
 
-Dans une copie du dépôt, `python -m pip install .` installe aussi la commande `veilleur-discord-mcp`. Le paquet utilise les variables `DISCORD_BOT_TOKEN` et `DISCORD_GUILD_ID` ; les plans et sauvegardes sont dans `%LOCALAPPDATA%\Veilleur` par défaut. `VEILLEUR_HOME` permet de choisir un autre dossier. Garde ces valeurs privées dans la configuration locale de ton client MCP.
+Veilleur est disponible sur [PyPI](https://pypi.org/project/veilleur-discord-mcp/) et dans le [registre MCP officiel](https://registry.modelcontextprotocol.io/). Cherche `io.github.NoPaperSpray/veilleur` dans le registre.
 
-La commande historique `python server.py` continue d'utiliser `.env`, `config.json` et `data/` dans le dossier du dépôt. Ces emplacements sont séparés de ceux du paquet installé.
+Sous Windows, tu peux installer le paquet dans un environnement dédié :
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install veilleur-discord-mcp
+```
+
+Dans ton client MCP, utilise le chemin absolu de `.venv\Scripts\veilleur-discord-mcp.exe` comme commande et renseigne les variables d'environnement `DISCORD_BOT_TOKEN` et `DISCORD_GUILD_ID` dans sa configuration locale. Garde le token privé : certains clients stockent cette configuration en clair.
+
+Cette installation garde ses plans et sauvegardes dans `%LOCALAPPDATA%\Veilleur` par défaut. Tu peux choisir un autre dossier avec `VEILLEUR_HOME`. Dans une copie du dépôt, `python -m pip install .` installe aussi le paquet. La commande historique `python server.py` utilise toujours `.env`, `config.json` et `data/` dans le dossier du dépôt : ses sauvegardes sont séparées de celles du paquet installé.
 
 ## Validation et sauvegardes
 
