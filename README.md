@@ -96,6 +96,17 @@ opencode mcp list
 
 La configuration est globale : Veilleur sera disponible depuis tes projets OpenCode. Redémarre OpenCode si nécessaire. La connexion a été vérifiée avec OpenCode v2.1.4 et une configuration de test. Pour les autres versions, consulte la [documentation OpenCode](https://dev.opencode.ai/v2/docs/mcp-servers/).
 
+Pour **Claude Code**, une fois `.env` et `config.json` renseignés, lance dans le dossier du dépôt :
+
+```powershell
+$pythonDiscord = (Resolve-Path .\.venv\Scripts\python.exe).Path
+$serveurDiscord = (Resolve-Path .\server.py).Path
+claude mcp add --scope user --transport stdio veilleur -- $pythonDiscord $serveurDiscord
+claude mcp list
+```
+
+Cette configuration est disponible dans tes projets Claude Code. Elle est distincte de celle du chat Claude Desktop. Connexion vérifiée avec Claude Code 2.1.226 et une configuration de test. Voir la [documentation Claude Code](https://code.claude.com/docs/en/mcp).
+
 Pour un autre client MCP compatible stdio, utilise le chemin absolu de `.venv\Scripts\python.exe` comme commande et celui de `server.py` comme argument. La config dépend du client. La fenêtre de validation doit pouvoir s'ouvrir dans ta session Windows.
 
 
