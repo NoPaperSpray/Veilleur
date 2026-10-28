@@ -538,17 +538,30 @@ class Service:
             run = self.read("runs", run_id)
             if run["backup_id"] != backup_id or run["status"] == "running" or any(s["status"] != "done" for s in run["steps"]):
                 raise ValueError("Exécution interrompue ou incertaine : examiner le journal et restaurer la sauvegarde explicitement")
+            created_messages = {step["result"]["id"] for step in run["steps"]
+                                if step["operation"]["action"] == "envoyer_message"}
+            deleted_messages = {step["operation"]["params"]["message_id"] for step in run["steps"]
+                                if step["operation"]["action"] == "supprimer_message"}
+            restored_messages = set()
             for step in reversed(run["steps"]):
                 a, p, result = step["operation"]["action"], step["operation"]["params"], step["result"]
                 if a == "envoyer_message":
-                    if p["salon_id"] in current_channels:
+                    if p["salon_id"] in current_channels and result["id"] not in deleted_messages:
                         op("supprimer_message", {"salon_id": p["salon_id"], "message_id": result["id"]})
                 elif a == "creer_salon" and result["id"] in current_channels:
                     op("supprimer_salon", {"salon_id": result["id"]})
                 elif a == "creer_role" and result["id"] in current_roles:
                     op("supprimer_role", {"role_id": result["id"]})
                 elif a == "modifier_message":
-                    original = copy.deepcopy(backup["context"]["messages"][p["message_id"]])
+                    message_id = p["message_id"]
+                    if (message_id in created_messages or message_id in deleted_messages
+                            or message_id in restored_messages or p["salon_id"] not in current_channels):
+                        continue
+                    original = backup["context"]["messages"].get(message_id)
+                    if original is None:
+                        raise ValueError("Message original absent de la sauvegarde ; vérifie le journal avant de continuer")
+                    original = copy.deepcopy(original)
+                    restored_messages.add(message_id)
                     for embed in original.get("embeds", []):
                         for key in list(embed):
                             if key not in {"title", "description", "color", "url", "fields", "footer", "author", "image", "thumbnail", "timestamp"}:
@@ -556,5 +569,5 @@ class Service:
                     op("modifier_message", {"salon_id": p["salon_id"], "message_id": p["message_id"],
                                             "data": select(original, {"content", "embeds"})})
         if not operations:
-            return {"mode": "APERCU", "actions": [], "info": "La structure correspond déjà à la sauvegarde"}
+            return {"mode": "APERCU", "actions": [], "info": "Aucune action de restauration disponible ; les messages supprimés ne peuvent pas être rétablis."}
         return self.preview("Restauration " + backup_id, operations)

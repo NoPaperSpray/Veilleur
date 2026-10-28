@@ -52,6 +52,8 @@ class FakeAPI:
                 self.messages[item["id"]] = item
             return copy.deepcopy(item)
         if method == "DELETE":
+            if "/messages/" in path:
+                self.messages.pop(path.split("/")[-1], None)
             if path.startswith("/channels/") and "/messages/" not in path:
                 self.channels[:] = [c for c in self.channels if c["id"] != path.split("/")[-1]]
             if path.startswith("/guilds/1/roles/"):
@@ -284,6 +286,60 @@ class SafetyTests(unittest.TestCase):
         for action, method in (("ajouter_role", "PUT"), ("retirer_role", "DELETE")):
             self.s.execute_operation({"action": action, "params": {"membre_id": "30", "role_id": "12"}}, "test")
             self.assertEqual(self.api.writes[-1][:2], (method, "/guilds/1/members/30/roles/12"))
+
+    def test_undo_message_created_then_edited_in_same_plan(self):
+        plan_id = self.plan([
+            {"action": "envoyer_message", "params": {"salon_id": "20", "content": "premier"}, "ref": "annonce"},
+            {"action": "modifier_message", "params": {"salon_id": "20", "message_id": "@annonce", "data": {"content": "second"}}},
+        ])
+        self.approve_fake(plan_id)
+        run = self.s.execute(plan_id)
+        self.assertEqual(run["status"], "completed")
+        undo = self.s.restoration(run["backup_id"], run["run_id"])
+        self.assertEqual([a["action"] for a in undo["actions"]], ["supprimer_message"])
+        self.assertEqual(undo["actions"][0]["params"]["message_id"], run["resultats"]["annonce"])
+        with self.assertRaisesRegex(ValueError, "Approbation"):
+            self.s.execute(undo["plan_id"])
+        self.approve_fake(undo["plan_id"])
+        self.assertEqual(self.s.execute(undo["plan_id"])["status"], "completed")
+        self.assertNotIn(run["resultats"]["annonce"], self.api.messages)
+        self.assertIn("40", self.api.messages)
+
+    def test_undo_message_created_then_deleted_in_same_plan(self):
+        plan_id = self.plan([
+            {"action": "envoyer_message", "params": {"salon_id": "20", "content": "temporaire"}, "ref": "annonce"},
+            {"action": "supprimer_message", "params": {"salon_id": "20", "message_id": "@annonce"}},
+        ])
+        self.approve_fake(plan_id)
+        run = self.s.execute(plan_id)
+        self.assertEqual(run["status"], "completed")
+        undo = self.s.restoration(run["backup_id"], run["run_id"])
+        self.assertEqual(undo["actions"], [])
+        self.assertIn("messages supprimés", undo["info"])
+
+    def test_undo_message_edited_twice_restores_original_once(self):
+        plan_id = self.plan([
+            {"action": "modifier_message", "params": {"salon_id": "20", "message_id": "40", "data": {"content": "premier"}}},
+            {"action": "modifier_message", "params": {"salon_id": "20", "message_id": "40", "data": {"content": "second"}}},
+        ])
+        self.approve_fake(plan_id)
+        run = self.s.execute(plan_id)
+        undo = self.s.restoration(run["backup_id"], run["run_id"])
+        changes = [a for a in undo["actions"] if a["action"] == "modifier_message"]
+        self.assertEqual(len(changes), 1)
+        self.assertEqual(changes[0]["params"]["data"]["content"], "avant")
+
+    def test_undo_cannot_restore_edited_then_deleted_message(self):
+        plan_id = self.plan([
+            {"action": "modifier_message", "params": {"salon_id": "20", "message_id": "40", "data": {"content": "changé"}}},
+            {"action": "supprimer_message", "params": {"salon_id": "20", "message_id": "40"}},
+        ])
+        self.approve_fake(plan_id)
+        run = self.s.execute(plan_id)
+        self.assertEqual(run["status"], "completed")
+        undo = self.s.restoration(run["backup_id"], run["run_id"])
+        self.assertEqual(undo["actions"], [])
+        self.assertIn("messages supprimés", undo["info"])
 
     def test_exclusive_lock(self):
         other = Service(Path(self.temp.name), "1", self.api)
